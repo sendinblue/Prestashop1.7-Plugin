@@ -45,8 +45,10 @@ if (empty($res_value['errMsg'])) {
 			newsletter_date_add = "' . pSQL($value['m']) . '"
 			WHERE email = "' . pSQL($value['e']) . '" ');
     }
-    
-    $handle = fopen(_PS_MODULE_DIR_ . 'sendinblue/csv/SyncToSendinblue.csv', 'w');
+
+    $file_name = Configuration::get('Sendin_CSV_File_Name');
+    $handle = fopen(_PS_MODULE_DIR_ . 'sendinblue/csv/'.$file_name.'.csv', 'w');
+    Configuration::updateValue('Sendin_CSV_File_Name', '', '');
     fclose($handle);
 }
 

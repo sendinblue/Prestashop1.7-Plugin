@@ -46,7 +46,9 @@ if (!empty($api_key)) {
 
 $sendin_order_track_status = Configuration::get('Sendin_order_tracking_Status', '', $id_shop_group, $id_shop);
 if ($sendin_order_track_status == 0) {
-    $handle = fopen(_PS_MODULE_DIR_ . 'sendinblue/csv/ImportOldOrdersToSendinblue.csv', 'w+');
+    $file_name = rand();
+    Configuration::updateValue('Sendin_CSV_File_Name', $file_name, '');
+    $handle = fopen(_PS_MODULE_DIR_ . 'sendinblue/csv/'.$file_name.'.csv', 'w+');
     $linedata = 'EMAIL,ORDER_ID,ORDER_PRICE,ORDER_DATE';
     fwrite($handle, $linedata . "\n");
     
@@ -92,7 +94,8 @@ if ($sendin_order_track_status == 0) {
 
     $list = Configuration::get('Sendin_Selected_List_Data', '', $id_shop_group, $id_shop);
     $list_id = explode('|', $list);
-    $data = array( "url" => $sendin->local_path . $sendin->name . '/csv/ImportOldOrdersToSendinblue.csv',
+    $file_name = Configuration::get('Sendin_CSV_File_Name');
+    $data = array( "url" => $sendin->local_path . $sendin->name . '/csv/'.$file_name.'.csv',
         "listids" => $list_id,
         "notify_url" => $sendin->local_path . 'sendinblue/EmptyImportOldOrdersFile.php?token=' . Tools::getValue('token')
     );

@@ -37,23 +37,23 @@ if ($token != $ps_shop_name_enc) {
 $id_shop_group = Tools::getValue('id_shop_group', 'NULL');
 $id_shop = Tools::getValue('id_shop', 'NULL');
 $sendin = new Sendinblue();
-$value_auto = Tools::getValue('automation_radio');
-Configuration::updateValue('Sendin_Automation_Status', $value_auto, '', $id_shop_group, $id_shop);
+$value_abandoned = Tools::getValue('abandoned_radio');
+Configuration::updateValue('Sendin_Abandoned_Status', $value_abandoned, '', $id_shop_group, $id_shop);
 $response = $sendin->trackingResult($id_shop_group, $id_shop);
 
-if ($value_auto == 1) {
+if ($value_abandoned == 1) {
     $response = $sendin->trackingResult($id_shop_group, $id_shop);
     if (isset($response['marketing_automation']) && $response['marketing_automation']['enabled'] == '1') {
         $ma_key = $response['marketing_automation']['key'];
         echo 'enable';
     } else {
-        $value_auto = 2;
-        Configuration::updateValue('Sendin_Automation_Status', $value_auto, '', $id_shop_group, $id_shop);
+        $value_abandoned = 2;
+        Configuration::updateValue('Sendin_Abandoned_Status', $value_abandoned, '', $id_shop_group, $id_shop);
         $ma_key = '';
         echo 'account_disable';
     }
     Configuration::updateValue('Sendin_Automation_Key', $ma_key, '', $id_shop_group, $id_shop);
-} elseif ($value_auto == 0) {
-    Configuration::updateValue('Sendin_Automation_Status', $value_auto, '', $id_shop_group, $id_shop);
+} elseif ($value_abandoned == 0) {
+    $ma_key = '';
     echo 'disable';
 }

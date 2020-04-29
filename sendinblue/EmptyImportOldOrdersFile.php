@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2014 PrestaShop
+ * 2007-2014 PrestaShop.
  *
  * NOTICE OF LICENSE
  *
@@ -24,14 +24,16 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-include(dirname(__FILE__) . '/../../config/config.inc.php');
+include dirname(__FILE__).'/../../config/config.inc.php';
 
 if (Tools::getValue('token') != Tools::encrypt(Configuration::get('PS_SHOP_NAME'))) {
     die('Error: Invalid Token');
 }
 
 if (Tools::getValue('proc_success') != '') {
-    $handle = fopen(_PS_MODULE_DIR_ . 'sendinblue/csv/ImportOldOrdersToSendinblue.csv', 'w');
+    $file_name = Configuration::get('Sendin_CSV_File_Name');
+    $handle = fopen(_PS_MODULE_DIR_.'sendinblue/csv/'.$file_name.'.csv', 'w');
+    Configuration::updateValue('Sendin_CSV_File_Name', '', '');
     fclose($handle);
 }
 

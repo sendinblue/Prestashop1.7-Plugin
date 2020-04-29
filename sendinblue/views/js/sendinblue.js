@@ -1,5 +1,5 @@
 /**
- * 2007-2019 PrestaShop
+ * 2007-2020 PrestaShop
  *
  * NOTICE OF LICENSE
  *
@@ -18,7 +18,7 @@
  * needs please refer to http://www.prestashop.com for more information.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2019 PrestaShop SA
+ * @copyright 2007-2020 PrestaShop SA
  * @license   http://opensource.org/licenses/afl-3.0.php Academic Free License (AFL 3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
@@ -641,6 +641,32 @@ $(document).ready(
 
                         $('#ajax-busy').hide();
 
+                    }
+                });
+            });
+            //end finction
+            
+            //abandoned enable and disable function
+            $(".clssubmitabandoned").click(function() {
+                var abandoned_radio = $('input:radio[name=abandoned_radio]:checked').val();
+                var abanmsg = $('#abanmsg').val();
+
+                if (abandoned_radio == 0) {
+                    var resp = confirm(abanmsg);
+                    if (resp === false) {
+                        return;
+                    }
+                }
+                $.ajax({
+                    type: "POST",
+                    async: false,
+                    url: base_url + "modules/sendinblue/ajaxAbandoned.php",
+                    data: {"abandoned_radio": abandoned_radio, "token": token, "id_shop_group":id_shop_group, "id_shop":id_shop},
+                    beforeSend: function() {
+                        $('#ajax-busy').show();
+                    },
+                    success: function(msg) {
+                        $('#ajax-busy').hide();
                     }
                 });
             });

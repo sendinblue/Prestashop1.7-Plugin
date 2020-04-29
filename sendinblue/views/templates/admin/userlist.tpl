@@ -1,5 +1,5 @@
 {*
-* 2007-2019 PrestaShop
+* 2007-2020 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -18,7 +18,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 * @author PrestaShop SA <contact@prestashop.com>
-* @copyright  2007-2019 PrestaShop SA
+* @copyright  2007-2020 PrestaShop SA
 * @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 * International Registered Trademark & Property of PrestaShop SA
 *}
@@ -41,9 +41,9 @@
 							<th>Emails</th>
 							<th width="20%">{l s='Client' mod='sendinblue'}</th>
 							<th width="20%">{l s='SMS' mod='sendinblue'}</th>
-							<th width="20%">{l s='Newsletter SendinBlue Status' mod='sendinblue'}<span class="toolTip" title="{l s='Click on the icon to subscribe / unsubscribe the contact from SendinBlue and PrestaShop.' mod='sendinblue'}">&nbsp;</span></th>
+							<th width="20%">{l s='Newsletter Sendinblue Status' mod='sendinblue'}<span class="toolTip" title="{l s='Click on the icon to subscribe / unsubscribe the contact from Sendinblue and PrestaShop.' mod='sendinblue'}">&nbsp;</span></th>
 							<th width="20%">{l s='Newsletter PrestaShop Status' mod='sendinblue'}</th>
-                            <th width="20%">{l s='SMS SendinBlue Status' mod='sendinblue'}<span class="toolTip" title="{l s='Click on the icon to subscribe / unsubscribe the SMS from SendinBlue.' mod='sendinblue'}">&nbsp;</span></th>
+                            <th width="20%">{l s='SMS Sendinblue Status' mod='sendinblue'}<span class="toolTip" title="{l s='Click on the icon to subscribe / unsubscribe the SMS from Sendinblue.' mod='sendinblue'}">&nbsp;</span></th>
 						</tr>
 					</thead>
 					<tbody class="midleft"> 

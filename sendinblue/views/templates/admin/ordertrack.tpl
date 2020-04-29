@@ -1,5 +1,5 @@
 {*
-* 2007-2019 PrestaShop
+* 2007-2020 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -18,17 +18,17 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 * @author PrestaShop SA <contact@prestashop.com>
-* @copyright  2007-2019 PrestaShop SA
+* @copyright  2007-2020 PrestaShop SA
 * @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 * International Registered Trademark & Property of PrestaShop SA
 *}
 
 <div class="tab-pane" id="code-tracking">
     <div class="form-box">
-    <h2 class="heading">{l s='Activate SendinBlue to track & sync your orders with SendinBlue' mod='sendinblue'}</h2><div class="form-box-content">
+    <h2 class="heading">{l s='Activate Sendinblue to track & sync your orders with Sendinblue' mod='sendinblue'}</h2><div class="form-box-content">
     <tr>
         <td>
-        <label>{l s='Do you want to track and sync your order data with SendinBlue?' mod='sendinblue'}
+        <label>{l s='Do you want to track and sync your order data with Sendinblue?' mod='sendinblue'}
         </label><span class="{$cl_version|escape:'htmlall':'UTF-8'|stripslashes}">
         <input type ="hidden" name="customtoken" id="customtoken" value="{$customtoken|escape:'htmlall':'UTF-8'|stripslashes}">
         <input type ="hidden" name="langvalue" id="langvalue" value="{$langvalue|escape:'htmlall':'UTF-8'|stripslashes}">
@@ -38,7 +38,7 @@
         <label class="differ-radio-btn"><input type="radio" {if !empty($Sendin_Tracking_Status) && $Sendin_Tracking_Status == 1}checked="checked"{/if} class="ordertracking script" id="yesradio" name="script" value="1") . '/><span>{l s='Yes' mod='sendinblue'}
         </span></label><label class="differ-radio-btn"><input type="radio" {if empty($Sendin_Tracking_Status) || $Sendin_Tracking_Status == 0}checked="checked"{/if} class="ordertracking script" id="noradio" name="script" value="0") . '/><span>{l s='No' mod='sendinblue'}
         </span></label><span class="toolTip"
-        title="{l s='This feature will allow you to transfer all your customers orders from PrestaShop into SendinBlue to implement your email marketing strategy' mod='sendinblue'}">
+        title="{l s='This feature will allow you to transfer all your customers orders from PrestaShop into Sendinblue to implement your email marketing strategy' mod='sendinblue'}">
         </span><label class="differ-radio-btn"><input class="blue-btn btn-xs ordertrackingcls scriptcls" type="button" name="ordertrackingcls" value="{l s='Update' mod='sendinblue'}"></label>
         </td>
     </tr>

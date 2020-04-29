@@ -173,18 +173,18 @@ ul.listt li {
 	-webkit-border-top-right-radius: 5px;
 }
 #tabs li a:hover {
-	background-color: #7c705b;
+	background-color: #044A75;
 }
 #tabs li.active a {
 	border-bottom: 1px solid #fff;
-	background-color: #7c705b;
+	background-color: #044A75;
 	padding:10px;
 	border-bottom: none;
 	color:#fff;
 	border:none;
 }
 #tabs li.active a:hover {
-	background-color: #7c705b;
+	background-color: #044A75;
 	border-bottom: none;
 }
 #tabs li a.icon_accept {
@@ -299,7 +299,7 @@ ul.listt li {
 }
 
 .link_action{ 
-color: #268CCD;}
+color: #044A75;}
 
 /*Form*/
 h4, h5, h6{ font-weight:bold;}
@@ -385,7 +385,7 @@ nobootstrap {
 	padding:15px;
 	display:block;	
 }
-.form-box .heading{background:#3498db; color:#fff; padding:10px; margin:0; line-height:21px; }
+.form-box .heading{background:#044A75; color:#fff; padding:10px; margin:0; line-height:21px; }
 .form-box .heading img{margin-right:5px; position:relative; top:2px; width:18px;}
 .form-box h2.heading{font-weight:500; font-size:18px;}
 .form-box-content{padding:10px 15px; border:1px solid #e2e2e2;	font-size:14px !important;}
@@ -399,7 +399,7 @@ nobootstrap {
     position: absolute;
     top: 25px;
     width: 0;}
-.contact-box h2{font-size:18px; color:#268CCD;}	
+.contact-box h2{font-size:18px; color:#044A75;}	
 
 .form-box label{font-weight:normal; padding-right:15px;}
 .form-box .sub-heading{font-size:15px; font-weight:600;}
@@ -419,7 +419,7 @@ nobootstrap {
 .tableblock th{font-family: 'Open Sans', sans-serif;}
 .tableblock  thead th{background:none; margin:0; text-shadow:none; font-weight:400; padding:0 !important;}
 .tableblock  thead th h2{padding:0; margin:0;font-weight:500; font-size:18px;}
-.tableblock .heading-thead{background:#3498db; color:#fff; padding:10px; margin:0; line-height:21px; }
+.tableblock .heading-thead{background:#044A75; color:#fff; padding:10px; margin:0; line-height:21px; }
 
 .tooltip-radio{top:5px; position:relative;}
 
@@ -484,7 +484,7 @@ nobootstrap {
 .main-tabs-content .form-box{padding:0;}
 
 .blue-btn {
-    background: #337ab7;
+    background: #044A75;
     border: 1px solid #2e6da4;
     color: #fff !important;
 	border: medium none;
@@ -496,7 +496,7 @@ nobootstrap {
 	text-decoration:none;
 }
 .green-btn {
-    background: #5cb85c;
+    background: #044A75;
     border: 1px solid #4cae4c;
     color: #fff !important;
 	border: medium none;

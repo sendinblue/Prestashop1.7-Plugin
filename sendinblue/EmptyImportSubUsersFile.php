@@ -31,7 +31,9 @@ if (Tools::getValue('token') != Tools::encrypt(Configuration::get('PS_SHOP_NAME'
 }
 
 if (Tools::getValue('proc_success') != '') {
-    $handle = fopen(_PS_MODULE_DIR_ . 'sendinblue/csv/ImportSubUsersToSendinblue.csv', 'w');
+    $file_name = Configuration::get('Sendin_CSV_File_Name');
+    $handle = fopen(_PS_MODULE_DIR_ . 'sendinblue/csv/'.$file_name.'.csv', 'w');
+    Configuration::updateValue('Sendin_CSV_File_Name', '', '');
     fclose($handle);
 }
 
