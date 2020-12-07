@@ -65,7 +65,7 @@ class Sendinblue extends Module
         $this->name = 'sendinblue';
         $this->tab = 'emailing';
         $this->author = 'Sendinblue';
-        $this->version = '3.3.8';
+        $this->version = '3.4.1';
         $this->module_key = 'fa4c321492032ab1bdeea359aa1e4e3d';
         $this->sib_api_url = 'https://api.sendinblue.com/v2.0';
 
@@ -90,7 +90,11 @@ class Sendinblue extends Module
         $this->id_shop = $id_shop;
         $pathconfig = new Pathfindsendinblue();
         $this->local_path = $pathconfig->pathDisp();
-
+        // this check is for checking new attributes COMPANY and POSTCODE created or not
+        $new_attribute_status = Configuration::get('Sendin_New_Attribute_Status');
+        if ($new_attribute_status != 1) {
+            $this->createCompanyAndPostcodeAttr();
+        }
         //Call the callHookRegister method to send an email to the Sendinblue user
         //when someone registers.
         $this->callHookRegister();
@@ -110,10 +114,6 @@ class Sendinblue extends Module
         $attribute_status = Configuration::get('Sendin_Attribute_Status');
         if ($attribute_status != 1) {
             $this->createNewAttribute();
-        }
-        $hook_zeroprice_status = Configuration::get('Sendin_Ord_Confirmation_Zeroprice_Status');
-        if ($hook_zeroprice_status != 1) {
-            $this->registerHookZeroPriceOrd();
         }
     }
 
@@ -153,7 +153,7 @@ class Sendinblue extends Module
                 return false;
             }
             $this->default_group = !empty($this->context->customer->id_default_group) ? $this->context->customer->id_default_group : '';
-            $this->context->controller->addJs($this->local_path.$this->name.'/views/js/sendinblue.js');
+            $this->context->controller->addJs($this->local_path.$this->name.'/views/js/sib.js');
 
             // Load customer data for logged in user so that we can register his/her with sendinblue
             $customer_data = $this->getCustomersByEmail($this->email);
@@ -230,10 +230,13 @@ class Sendinblue extends Module
             $this->id_lang = !empty($this->context->cookie->id_lang) ? $this->context->cookie->id_lang : '';
             $this->birthday = Tools::getValue('birthday');
             $birthday = $this->birthday;
+            $company = Tools::getValue('company');
+            $postcode = Tools::getValue('postcode');
+
             if ($this->first_name && !self::isCustomerName($this->first_name) || $this->last_name && !self::isCustomerName($this->last_name)) {
                 return false;
             }
-
+            
             $this->default_group = !empty($this->context->customer->id_default_group) ? $this->context->customer->id_default_group : '';
             $phone_mobile = !empty($phone_mobile) ? $phone_mobile : $phone_home;
             if (isset($this->newsletter) && $this->newsletter == 1 && $this->email != '') {
@@ -257,7 +260,7 @@ class Sendinblue extends Module
                 }
 
                 if (isset($this->newsletter) && $this->newsletter == 1) {
-                    $this->subscribeByruntimeRegister($this->email, $this->id_gender, $this->first_name, $this->last_name, $birthday, $this->id_lang, $phone_mobile, $this->default_group, $this->newsletter, $this->id_shop_group, $this->id_shop);
+                    $this->subscribeByruntimeRegister($this->email, $this->id_gender, $this->first_name, $this->last_name, $birthday, $this->id_lang, $phone_mobile, $this->default_group, $this->newsletter, $this->id_shop_group, $this->id_shop, '', $company, $postcode);
                     $this->sendWsTemplateMail($this->email);
                 }
             } elseif (Tools::getValue('email') != '') {
@@ -323,6 +326,9 @@ class Sendinblue extends Module
                         }
                         $phone_mobile = '';
                         $id_country = '';
+                        $company = '';
+                        $postcode = '';
+
 
                         // Check if user have address data
                         if ($customer_address && count($customer_address) > 0) {
@@ -331,9 +337,12 @@ class Sendinblue extends Module
                             for ($i = $count_address; $i >= 0; --$i) {
                                 $temp = 0;
                                 foreach ($customer_address as $select_address) {
-                                    if ($temp < $select_address['date_upd'] && (!empty($select_address['phone_mobile']) || !empty($select_address['phone']))) {
+                                    if ($temp < $select_address['date_upd']) {
                                         $temp = $select_address['date_upd'];
-                                        $phone_mobile = !empty($select_address['phone_mobile']) ? $select_address['phone_mobile'] : $select_address['phone'];
+                                        $company = !empty($select_address['company']) ? $select_address['company'] : '';
+                                        $postcode = !empty($select_address['postcode']) ? $select_address['postcode'] : '';
+                                        $phone = !empty($select_address['phone']) ? $select_address['phone'] : '';
+                                        $phone_mobile = !empty($select_address['phone_mobile']) ? $select_address['phone_mobile'] : $phone;
                                         $id_country = $select_address['id_country'];
                                     }
                                 }
@@ -354,7 +363,7 @@ class Sendinblue extends Module
                         }
 
                         // Code to update sendinblue with logged in user data.
-                        $this->subscribeByruntimeRegister($this->email, $this->id_gender, $this->first_name, $this->last_name, $this->birthday, $this->id_lang, $phone_mobile, $this->default_group, $this->newsletter, $this->id_shop_group, $this->id_shop);
+                        $this->subscribeByruntimeRegister($this->email, $this->id_gender, $this->first_name, $this->last_name, $this->birthday, $this->id_lang, $phone_mobile, $this->default_group, $this->newsletter, $this->id_shop_group, $this->id_shop, '', $company, $postcode);
                     }
                 }
             }
@@ -381,7 +390,7 @@ class Sendinblue extends Module
      */
     public function install()
     {
-        if (parent::install() == false || $this->registerHook('OrderConfirmation') === false || $this->registerHook('leftColumn') === false || $this->registerHook('rightColumn') === false || $this->registerHook('top') === false || $this->registerHook('footer') === false || $this->registerHook('createAccount') === false || $this->registerHook('createAccountForm') === false || $this->registerHook('updateOrderStatus') === false || $this->registerHook('header') === false || $this->registerHook('actionPaymentConfirmation') === false) {
+        if (parent::install() == false || $this->registerHook('OrderConfirmation') === false || $this->registerHook('leftColumn') === false || $this->registerHook('rightColumn') === false || $this->registerHook('top') === false || $this->registerHook('footer') === false || $this->registerHook('createAccount') === false || $this->registerHook('createAccountForm') === false || $this->registerHook('updateOrderStatus') === false || $this->registerHook('header') === false) {
             return false;
         }
 
@@ -854,6 +863,8 @@ WHERE email = "'.pSQL($this->email).'"');
             'groupId' => 'GROUP_ID',
             'storeId' => 'STORE_ID',
             'defaultStoreId' => 'DEFAULT_GROUP_ID',
+            'company' => 'COMPANY',
+            'postcode' => 'POSTCODE'
         );
         $alias['fr'] = array(
             'email' => 'EMAIL',
@@ -867,6 +878,8 @@ WHERE email = "'.pSQL($this->email).'"');
             'groupId' => 'GROUP_ID',
             'storeId' => 'STORE_ID',
             'defaultStoreId' => 'DEFAULT_GROUP_ID',
+            'company' => 'COMPANY',
+            'postcode' => 'POSTCODE'
         );
 
         //Writing the header in CSV as per language
@@ -878,9 +891,6 @@ WHERE email = "'.pSQL($this->email).'"');
         if (!empty($this->id_shop_group)) {
             $whereCondition .= ' AND C.id_shop_group = '.$this->id_shop_group;
         }
-
-        $selectLang = 'C.id_lang as lang,';
-        $selectStore = 'GROUP_CONCAT(DISTINCT(C.id_shop_group)) as groupId, GROUP_CONCAT(DISTINCT(C.id_shop)) as storeId,';
 
         //Not Registered users, i.e user only subscribed to newsletter
         $unregisteredContacts = Db::getInstance()->ExecuteS('
@@ -909,6 +919,9 @@ WHERE email = "'.pSQL($this->email).'"');
                 $alias[$lang]['groupId'] => empty($contact['groupId']) ? '1' : $contact['groupId'],
                 $alias[$lang]['storeId'] => empty($contact['storeId']) ? '1' : $contact['storeId'],
                 $alias[$lang]['defaultStoreId'] => '',
+                $alias[$lang]['company'] => '',
+                $alias[$lang]['postcode'] => ''
+
             );
             fputcsv($handle, $customer, ';');
             ++$totalCount;
@@ -925,6 +938,8 @@ WHERE email = "'.pSQL($this->email).'"');
                         1 as client,
                         MAX(A.phone_mobile) as sms,
                         MAX(A.phone) as phone,
+                        A.company as company,
+                        A.postcode as postcode,
                         GROUP_CONCAT(DISTINCT(C.id_shop_group)) as groupId, 
                         GROUP_CONCAT(DISTINCT(C.id_shop)) as storeId,
                         COALESCE(
@@ -970,6 +985,8 @@ WHERE email = "'.pSQL($this->email).'"');
                 $alias[$lang]['groupId'] => empty($contact['groupId']) ? '1' : $contact['groupId'],
                 $alias[$lang]['storeId'] => empty($contact['storeId']) ? '1' : $contact['storeId'],
                 $alias[$lang]['defaultStoreId'] => $contact['defaultStoreId'],
+                $alias[$lang]['company'] => $contact['company'],
+                $alias[$lang]['postcode'] => $contact['postcode']
             );
             fputcsv($handle, $customer, ';');
             ++$totalCount;
@@ -2072,9 +2089,9 @@ WHERE email = "'.pSQL($this->email).'"');
         $transactional_attributes = array();
         $value_langauge = $this->getApiConfigValue();
         if ($value_langauge->language == 'fr') {
-            $data_attr = array('CIV' => 'TEXT', 'PRENOM' => 'TEXT', 'NOM' => 'TEXT', 'DDNAISSANCE' => 'DATE', 'PS_LANG' => 'TEXT', 'SMS' => 'TEXT', 'GROUP_ID' => 'TEXT', 'STORE_ID' => 'TEXT', 'CLIENT' => 'NUMBER', 'DEFAULT_GROUP_ID' => 'TEXT');
+            $data_attr = array('CIV' => 'TEXT', 'PRENOM' => 'TEXT', 'NOM' => 'TEXT', 'DDNAISSANCE' => 'DATE', 'PS_LANG' => 'TEXT', 'SMS' => 'TEXT', 'GROUP_ID' => 'TEXT', 'STORE_ID' => 'TEXT', 'CLIENT' => 'NUMBER', 'DEFAULT_GROUP_ID' => 'TEXT', 'COMPANY' => 'TEXT','POSTCODE' => 'TEXT');
         } else {
-            $data_attr = array('CIV' => 'TEXT', 'NAME' => 'TEXT', 'SURNAME' => 'TEXT', 'BIRTHDAY' => 'DATE', 'PS_LANG' => 'TEXT', 'SMS' => 'TEXT', 'GROUP_ID' => 'TEXT', 'STORE_ID' => 'TEXT', 'CLIENT' => 'NUMBER', 'DEFAULT_GROUP_ID' => 'TEXT');
+            $data_attr = array('CIV' => 'TEXT', 'NAME' => 'TEXT', 'SURNAME' => 'TEXT', 'BIRTHDAY' => 'DATE', 'PS_LANG' => 'TEXT', 'SMS' => 'TEXT', 'GROUP_ID' => 'TEXT', 'STORE_ID' => 'TEXT', 'CLIENT' => 'NUMBER', 'DEFAULT_GROUP_ID' => 'TEXT', 'COMPANY' => 'TEXT','POSTCODE' => 'TEXT');
         }
         $transactional_attributes = array('ORDER_ID' => 'ID', 'ORDER_DATE' => 'DATE', 'ORDER_PRICE' => 'NUMBER');
 
@@ -2331,7 +2348,7 @@ WHERE email = "'.pSQL($this->email).'"');
     /**
      * Add / Modify subscribers with their full details like Firstname, Lastname etc.
      */
-    public function subscribeByruntimeRegister($email, $id_gender, $fname, $lname, $birthday, $langisocode, $phone_mobile, $default_group, $newsletter_status = '', $id_shop_group = 'NULL', $id_shop = 'NULL', $list_id = '')
+    public function subscribeByruntimeRegister($email, $id_gender, $fname, $lname, $birthday, $langisocode, $phone_mobile, $default_group, $newsletter_status = '', $id_shop_group = 'NULL', $id_shop = 'NULL', $list_id = '', $company = '', $postcode = '')
     {
         $id_shop_group = !empty($id_shop_group) ? $id_shop_group : 'NULL';
         $id_shop = !empty($id_shop) ? $id_shop : 'NULL';
@@ -2404,6 +2421,14 @@ WHERE email = "'.pSQL($this->email).'"');
         if (!empty($phone_mobile) && $phone_mobile > 0) {
             $attribute_data[] = $phone_mobile;
             $attribute_key[] = 'SMS';
+        }
+        if (!empty($company)) {
+            $attribute_data[] = $company;
+            $attribute_key[] = 'COMPANY';
+        }
+        if (!empty($postcode)) {
+            $attribute_data[] = $postcode;
+            $attribute_key[] = 'POSTCODE';
         }
         if (isset($id_shop_group) && !empty($email)) {
             if ($id_shop_group === null) {
@@ -2839,9 +2864,8 @@ WHERE email = "'.pSQL($this->email).'"');
         WHERE `email` = \''.pSQL($customer_email).'\''.$condition.'')) {
             return 1;
         }
-
         if (!$registered = Db::getInstance()->getRow('SELECT `newsletter` FROM '._DB_PREFIX_.'customer
-        WHERE `email` = \''.pSQL($customer_email).'\''.$condition.'')) {
+            WHERE `email` = \''.pSQL($customer_email).'\''.$condition.'')) {
             return -1;
         }
 
@@ -2866,9 +2890,8 @@ WHERE email = "'.pSQL($this->email).'"');
         WHERE `email` = \''.pSQL($customer_email).'\' and active=1 '.$condition.'')) {
             return true;
         }
-
         if (Db::getInstance()->getRow('SELECT `newsletter` FROM '._DB_PREFIX_.'customer
-        WHERE `email` = \''.pSQL($customer_email).'\' and newsletter=1 '.$condition.'')) {
+            WHERE `email` = \''.pSQL($customer_email).'\' and newsletter=1 '.$condition.'')) {
             return true;
         }
 
@@ -3007,7 +3030,6 @@ WHERE email = "'.pSQL($this->email).'"');
         $this->unregisterHook('createAccountForm');
         $this->unregisterHook('OrderConfirmation');
         $this->unregisterHook('actionCartSave');
-        $this->unregisterHook('actionPaymentConfirmation');
         Configuration::deleteByName('Sendin_Api_Sms_Order_Status');
         Configuration::deleteByName('Sendin_Api_Sms_shipment_Status');
         Configuration::deleteByName('Sendin_Api_Sms_Campaign_Status');
@@ -3473,200 +3495,6 @@ WHERE email = "'.pSQL($this->email).'"');
         $abandoned_status = Configuration::get('Sendin_Abandoned_Status', '', $this->id_shop_group, $this->id_shop);
         if (!empty($automation_Key) && $abandoned_status == 1) {
             $this->cartOrderConfirm($params, $address_billing, $address_delivery, $ref_num);
-        }
-    }
-
-    /**
-     * When a user places an order with 0 price or use free order with coopan, the tracking code integrates in the order confirmation page.
-     */
-    public function hookActionPaymentConfirmation($params)
-    {
-        if (!$this->checkModuleStatus()) {
-            return false;
-        }
-
-        $id_order = !empty($params['id_order']) ? $params['id_order'] : '';
-        $order_details = new Order((int) $id_order);
-
-        $customerid = (isset($params['cart']->id_customer)) ? $params['cart']->id_customer : '';
-        $customer_result = Db::getInstance()->ExecuteS('SELECT id_gender, firstname, lastname, newsletter  FROM ' . _DB_PREFIX_ . 'customer WHERE `id_customer` = ' . (int)$customerid);
-        $id_delivery = (isset($params['cart']->id_address_delivery)) ? $params['cart']->id_address_delivery : 0;
-        $id_address_invoice = (isset($params['cart']->id_address_invoice)) ? $params['cart']->id_address_invoice : 0;
-        $address_delivery = Db::getInstance()->ExecuteS('SELECT * FROM ' . _DB_PREFIX_ . 'address WHERE `id_address` = ' . (int)$id_delivery);
-        $address_billing = Db::getInstance()->ExecuteS('SELECT * FROM ' . _DB_PREFIX_ . 'address WHERE `id_address` = ' . (int)$id_address_invoice);
-        $ref_num = (isset($order_details->reference)) ? $order_details->reference : 0;
-        $total_to_pay = (isset($order_details->total_paid)) ? round($order_details->total_paid, 2) : 0;
-        //get phone number and add country prefix
-        if (!empty($address_delivery[0]['id_country'])) {
-            $phone_sms = !empty($address_delivery[0]['phone_mobile']) ? $address_delivery[0]['phone_mobile'] : $address_delivery[0]['phone'];
-            if (!empty($phone_sms)) {
-                $result_code = Db::getInstance()->getRow('SELECT `call_prefix` FROM ' . _DB_PREFIX_ . 'country
-                WHERE `id_country` = \'' . pSQL($address_delivery[0]['id_country']) . '\'');
-                $number = $this->checkMobileNumber($phone_sms, $result_code['call_prefix']);
-            }
-        }
-        if (Configuration::get('Sendin_Api_Sms_Order_Status', '', $this->id_shop_group, $this->id_shop) && Configuration::get('Sendin_Sender_Order', '', $this->id_shop_group, $this->id_shop) && Configuration::get('Sendin_Sender_Order_Message', '', $this->id_shop_group, $this->id_shop)) {
-            $data_tran_sms = array();
-            $order_date = (isset($order_details->date_upd)) ? $order_details->date_upd : 0;
-            if ($this->context->language->id == 1) {
-                $ord_date = date('m/d/Y', strtotime($order_date));
-            } else {
-                $ord_date = date('d/m/Y', strtotime($order_date));
-            }
-
-            $firstname = (isset($address_delivery[0]['firstname'])) ? $address_delivery[0]['firstname'] : '';
-            $lastname = (isset($address_delivery[0]['lastname'])) ? $address_delivery[0]['lastname'] : '';
-            
-            if ((Tools::strtolower($firstname) === Tools::strtolower($customer_result[0]['firstname'])) && (Tools::strtolower($lastname) === Tools::strtolower($customer_result[0]['lastname']))) {
-                $civility_value = (isset($this->context->customer->id_gender)) ? $this->context->customer->id_gender : '';
-                $lang_value = (isset($this->context->customer->id_lang)) ? $this->context->customer->id_lang : '';
-            } else {
-                $civility_value = '';
-            }
-            
-            if (!empty($civility_value) && !empty($lang_value)) {
-                $gender_name = Db::getInstance()->getRow('SELECT `name` FROM ' . _DB_PREFIX_ . 'gender_lang WHERE  `id_lang` = \'' . pSQL($lang_value) . '\' AND `id_gender` = \'' . pSQL($civility_value) . '\'');
-                $civility = !empty($gender_name['name']) ? $gender_name['name'] : '';
-            } else {
-                $civility = '';
-            }
-            
-            $total_pay = $total_to_pay . ' ' . $this->context->currency->iso_code;
-            $msgbody = Configuration::get('Sendin_Sender_Order_Message', '', $this->id_shop_group, $this->id_shop);
-            $civility_data = str_replace('{civility}', $civility, $msgbody);
-            $fname = str_replace('{first_name}', $firstname, $civility_data);
-            $lname = str_replace('{last_name}', $lastname . "\r\n", $fname);
-            $product_price = str_replace('{order_price}', $total_pay, $lname);
-            $order_date = str_replace('{order_date}', $ord_date . "\r\n", $product_price);
-            $msgbody = str_replace('{order_reference}', $ref_num, $order_date);
-            $data_tran_sms['from'] = Configuration::get('Sendin_Sender_Order', '', $this->id_shop_group, $this->id_shop);
-            $data_tran_sms['text'] = $msgbody;
-            $data_tran_sms['to'] = $number;
-            $data_tran_sms['type'] = "transactional";
-            $mailin = $this->createObjMailin();
-            $this->sendSmsApi($data_tran_sms);
-        }
-
-        if (Configuration::get('Sendin_Api_Key_Status', '', $this->id_shop_group, $this->id_shop) == 1 && Configuration::get('Sendin_Tracking_Status', '', $this->id_shop_group, $this->id_shop) == 1 && $customer_result[0]['newsletter'] == 1) {
-            $this->tracking = $this->trackingResult();
-            $config_value = $this->getApiConfigValue();
- 
-            if ($config_value->date_format == 'dd-mm-yyyy') {
-                $date = date('d-m-Y');
-            } else {
-                $date = date('m-d-Y');
-            }
-            
-            $list_id = str_replace('|', ',', Configuration::get('Sendin_Selected_List_Data', '', $this->id_shop_group, $this->id_shop));
-            $sib_list_id = explode('|', $list_id);
-
-            $attribute_data = array();
-            $attribute_key = array();
-
-            if (!empty($this->context->customer->firstname)) {
-                $attribute_data[] = $this->context->customer->firstname;
-                if ($config_value->language == 'fr') {
-                    $attribute_key[] = 'PRENOM';
-                } else {
-                    $attribute_key[] = 'NAME';
-                }
-                $client = 1;
-            }
-            if (!empty($this->context->customer->lastname)) {
-                $attribute_data[] = $this->context->customer->lastname;
-                if ($config_value->language == 'fr') {
-                    $attribute_key[] = 'NOM';
-                } else {
-                    $attribute_key[] = 'SURNAME';
-                }
-            }
-            if (!empty($number)) {
-                $attribute_data[] = $number;
-                $attribute_key[] = 'SMS';
-            }
-            if (!empty($ref_num)) {
-                $attribute_data[] = $ref_num;
-                $attribute_key[] = 'ORDER_ID';
-            }
-            if (!empty($date)) {
-                $attribute_data[] = $date;
-                $attribute_key[] = 'ORDER_DATE';
-            }
-            if (!empty($total_to_pay)) {
-                $attribute_data[] = Tools::safeOutput($total_to_pay);
-                $attribute_key[] = 'ORDER_PRICE';
-            }
-            if ($client >= 0) {
-                $attribute_data[] = $client;
-                $attribute_key[] = 'CLIENT';
-            }
-            $mailin = $this->createObjMailin();
-            $blacklisted_value = 0;
-            $attr_key_val = array();
-            $i = 0;
-            foreach ($attribute_key as $val) {
-                $attr_key_val[$val] = $attribute_data[$i];
-                $i = $i + 1;
-            }
-            $data = array( "email" => $this->context->customer->email,
-            "attributes" => $attr_key_val,
-            "blacklisted" => $blacklisted_value,
-            "listid" => $sib_list_id
-            );
-            $mailin->createUpdateUser($data);
-        } else if ($customer_result[0]['newsletter'] == 1 && !empty($this->context->customer->email)) {
-            $list_id = str_replace('|', ',', Configuration::get('Sendin_Selected_List_Data', '', $this->id_shop_group, $this->id_shop));
-            $sib_list_id = explode('|', $list_id);
-            $config_value = $this->getApiConfigValue();
-            $attribute_data = array();
-            $attribute_key = array();
-
-            if (!empty($this->context->customer->firstname)) {
-                $attribute_data[] = $this->context->customer->firstname;
-                if (!empty($config_value->language) && $config_value->language == 'fr') {
-                    $attribute_key[] = 'PRENOM';
-                } else {
-                    $attribute_key[] = 'NAME';
-                }
-                $client = 1;
-            }
-            if (!empty($this->context->customer->lastname)) {
-                $attribute_data[] = $this->context->customer->lastname;
-                if (!empty($config_value->language) && $config_value->language == 'fr') {
-                    $attribute_key[] = 'NOM';
-                } else {
-                    $attribute_key[] = 'SURNAME';
-                }
-            }
-            if (!empty($number)) {
-                $attribute_data[] = $number;
-                $attribute_key[] = 'SMS';
-            }
-
-            if ($client >= 0) {
-                $attribute_data[] = $client;
-                $attribute_key[] = 'CLIENT';
-            }
-            $mailin = $this->createObjMailin();
-            $blacklisted_value = 0;
-            $attr_key_val = array();
-            $i = 0;
-            foreach ($attribute_key as $val) {
-                $attr_key_val[$val] = $attribute_data[$i];
-                $i = $i + 1;
-            }
-            $data = array( "email" => $this->context->customer->email,
-            "attributes" => $attr_key_val,
-            "blacklisted" => $blacklisted_value,
-            "listid" => $sib_list_id
-            );
-            $mailin->createUpdateUser($data);
-        }
-
-        $automation_Key = Configuration::get('Sendin_Automation_Key', '', $this->id_shop_group, $this->id_shop);
-        $abandoned_status = Configuration::get('Sendin_Abandoned_Status', '', $this->id_shop_group, $this->id_shop);
-        if (!empty($automation_Key) && $abandoned_status == 1) {
-            $this->cartOrderConfirmForZeroPrice($params, $address_billing, $address_delivery, $ref_num);
         }
     }
 
@@ -4353,6 +4181,10 @@ WHERE email = "'.pSQL($this->email).'"');
             return false;
         }
 
+        $version_nl = $this->newsletterVersion();
+        if ($version_nl >= '2.6.0') {
+            $this->context->controller->addJs($this->local_path.$this->name.'/views/js/sendinnlscript.js');
+        }
         $automation_status = Configuration::get('Sendin_Automation_Status', '', $this->id_shop_group, $this->id_shop);
         if ($automation_status == 1) {
             $ma_email = isset($params['cookie']) ? $params['cookie']->email : '';
@@ -4452,12 +4284,13 @@ EOT;
         $cart = !empty($params['cart']) ? $params['cart'] : '';
         $cookie = !empty($params['cookie']) ? $params['cookie'] : '';
 
-        if ($this->context->customer->isLogged()) {
-            $email = $this->context->customer->email;
+        $email = '';
+        if ($this->context->customer) {
+            if ($this->context->customer->isLogged()) {
+                $email = $this->context->customer->email;
+            }
         } elseif (!empty($cookie->email)) {
             $email = $cookie->email;
-        } else {
-            $email = '';
         }
 
         if (empty($email) || empty($cart) || empty($cart->id)) {
@@ -4466,7 +4299,6 @@ EOT;
         $first_name = !empty($params['cookie']->customer_firstname) ? $params['cookie']->customer_firstname : '';
         $last_name = !empty($params['cookie']->customer_lastname) ? $params['cookie']->customer_lastname : '';
         $currency = new CurrencyCore($cart->id_currency);
-        $site_path = Tools::getShopDomainSsl(true);
         $my_currency = $currency->iso_code;
         $cart_id = $cart->id;
         $data = array(
@@ -4802,161 +4634,6 @@ EOT;
         $this->curlpost($data, 'trackEvent');
     }
 
-    /*
-     * Tracking Events 
-     * Abandoned Cart order confirmation for 0 price only.
-    */
-    public function cartOrderConfirmForZeroPrice($params, $address_billing, $address_delivery, $ref_num)
-    {
-        $id_order = !empty($params['id_order']) ? $params['id_order'] : '';
-        $order_details = new Order((int) $id_order);
-
-        $email = !empty($this->context->customer->email) ? $this->context->customer->email : '';
-        $first_name = !empty($this->context->customer->firstname) ? $this->context->customer->firstname : '';
-        $last_name = !empty($this->context->customer->lastname) ? $this->context->customer->lastname : '';
-        $cart_id = (isset($order_details->id_cart)) ? $order_details->id_cart : '';
-        $data = array(
-            'email' => $email,
-            'event' => 'order_completed',
-            'properties' => array(
-                'FIRSTNAME' => $first_name,
-                'LASTNAME' => $last_name,
-            ),
-            'eventdata' => array(
-                'id' => "cart:".$cart_id,
-                'data' => array()
-            )
-        );
-        $id_currency = !empty($order_details->id_currency) ? $order_details->id_currency : '';
-        $my_currency = new Currency($id_currency);
-        $discount = !empty($order_details->total_discounts) ? $order_details->total_discounts : '';
-        $total = round($order_details->total_paid, 2);
-        $subtotal = round($order_details->total_paid_tax_excl, 2);
-        $tax_total = $total - $subtotal;
-        $order_date = (isset($order_details->date_upd)) ? $order_details->date_upd : 0;
-        if ($this->context->language->id == 1) {
-            $ord_date = date('m-d-Y', strtotime($order_date));
-        } else {
-            $ord_date = date('d-m-Y', strtotime($order_date));
-        }
-        $data['eventdata']['data']['id'] = $ref_num;
-        $data['eventdata']['data']['date'] = !empty($ord_date) ? $ord_date : '';
-        $data['eventdata']['data']['subtotal'] = $subtotal;
-        $data['eventdata']['data']['shipping'] = 0;
-        $data['eventdata']['data']['total_before_tax'] = $subtotal;
-        $data['eventdata']['data']['tax'] = $tax_total;
-        $data['eventdata']['data']['discount'] = round($discount, 2);
-        $data['eventdata']['data']['total'] = $total;
-        $data['eventdata']['data']['revenue'] = $total;
-        $data['eventdata']['data']['currency'] = $my_currency->iso_code;
-
-        $products = array();
-        $products_all = $params['cart']->getProducts(true);
-        $site_path = Tools::getShopDomainSsl(true);
-        $base = (Configuration::get('PS_SSL_ENABLED') ? 'https://' : 'http://');
-        $image_type = ImageType::getFormatedName('home');
-        $link = new Link;
-        if (!empty($products_all)) {
-            foreach ($products_all as $product_data) {
-                $product_new = new Product($product_data['id_product'], false, $order_details->id_lang);
-                $image = Image::getCover($product_data['id_product']);
-                $image_path = $base . $link->getImageLink($product_new->link_rewrite, $image['id_image'], $image_type);
-                $url = $site_path . '/index.php?id_product='.$product_data['id_product'].'&controller=product';
-                $total_price = '0';
-                if (!empty($product_data['total_price_tax_incl'])) {
-                    $total_price = round($product_data['total_price_tax_incl'], 2);
-                }
-                if (!empty($product_data['name'])) {
-                    $product_attribute = explode(' - ', $product_data['name']);
-                    $product_varient = !empty($product_attribute['1']) ? $product_attribute['1'] : $product_attribute['0'];
-                }
-
-                $products[] = array(
-                    'id' => !empty($product_data['id_product']) ? $product_data['id_product'] : '',
-                    'name' => !empty($product_new->name) ? $product_new->name : '',
-                    'category' => !empty($product_new->category) ? $product_new->category : '',
-                    'description_short' => !empty($product_new->description_short) ? $product_new->description_short : '',
-                    'available_now' => !empty($product_new->available_now) ? $product_new->available_now : '',
-                    'price' => $total_price,
-                    'quantity' => !empty($product_data['quantity']) ? $product_data['quantity'] : '',
-                    'variant_id_name' => $product_varient,
-                    'variant_id' => '',
-                    'sku' => !empty($product_data['reference']) ? $product_data['reference'] : '',
-                    'url' => $url,
-                    'image' => $image_path
-                );
-            }
-            $data['eventdata']['data']['items'] = $products;
-        }
-
-        $code_delivery = !empty($address_delivery[0]['id_country']) ? $address_delivery[0]['id_country'] : 0;
-        if (!empty($address_delivery[0]['phone_mobile']) || !empty($address_delivery[0]['phone'])) {
-            $mobile_phone_delivery = !empty($address_delivery[0]['phone_mobile']) ? $address_delivery[0]['phone_mobile'] : $address_delivery[0]['phone'];
-            $result_code_delivery = $this->countyCode($code_delivery);
-            $number_delivery = $this->checkMobileNumber($mobile_phone_delivery, $result_code_delivery['call_prefix']);
-        }
-
-        if (!empty($address_delivery[0]['id_country'])) {
-            $country_delivery = Country::getNameById($order_details->id_lang, $address_delivery[0]['id_country']);
-        }
-        if (!empty($address_delivery[0]['id_state'])) {
-            $state_delivery = State::getNameById($address_delivery[0]['id_state']);
-        }
-        $shipping_address = array(
-            'firstname' => !empty($address_delivery[0]['firstname']) ? $address_delivery[0]['firstname'] : '',
-            'lastname' => !empty($address_delivery[0]['lastname']) ? $address_delivery[0]['lastname'] : '',
-            'company' => !empty($address_delivery[0]['company']) ? $address_delivery[0]['company'] : '',
-            'phone' => !empty($number_delivery) ? $number_delivery : '',
-            'country' => !empty($country_delivery) ? $country_delivery : '',
-            'state' => !empty($state_delivery) ? $state_delivery : '',
-            'address1' => !empty($address_delivery[0]['address1']) ? $address_delivery[0]['address1'] : '',
-            'address2' => !empty($address_delivery[0]['address2']) ? $address_delivery[0]['address2'] : '',
-            'city' => !empty($address_delivery[0]['city']) ? $address_delivery[0]['city'] : '',
-            'zipcode' => !empty($address_delivery[0]['postcode']) ? $address_delivery[0]['postcode'] : ''
-        );
-        if (!empty($address_billing[0]['id_country'])) {
-            $country_billing = Country::getNameById($order_details->id_lang, $address_billing[0]['id_country']);
-        }
-        if (!empty($address_billing[0]['id_state'])) {
-            $state_billing = State::getNameById($address_billing[0]['id_state']);
-        }
-
-        $code_billing = !empty($address_billing[0]['id_country']) ? $address_billing[0]['id_country'] : 0;
-        if (!empty($address_billing[0]['phone_mobile']) || !empty($address_billing[0]['phone'])) {
-            $mobile_phone = !empty($address_billing[0]['phone_mobile']) ? $address_billing[0]['phone_mobile'] : $address_billing[0]['phone'];
-            $result_code = $this->countyCode($code_billing);
-            $number_billing = $this->checkMobileNumber($mobile_phone, $result_code['call_prefix']);
-        }
-        $billing_address = array(
-            'firstname' => !empty($address_billing[0]['firstname']) ? $address_billing[0]['firstname'] : '',
-            'lastname' => !empty($address_billing[0]['lastname']) ? $address_billing[0]['lastname'] : '',
-            'company' => !empty($address_billing[0]['company']) ? $address_billing[0]['company'] : '',
-            'phone' => !empty($number_billing) ? $number_billing : '',
-            'country' => !empty($country_billing) ? $country_billing : '',
-            'state' => !empty($state_billing) ? $state_billing : '',
-            'address1' => !empty($address_billing[0]['address1']) ? $address_billing[0]['address1'] : '',
-            'address2' => !empty($address_billing[0]['address2']) ? $address_billing[0]['address2'] : '',
-            'city' => !empty($address_billing[0]['city']) ? $address_billing[0]['city'] : '',
-            'zipcode' => !empty($address_billing[0]['postcode']) ? $address_billing[0]['postcode'] : ''
-        );
-        $data['eventdata']['data']['shipping_address'] = $shipping_address;
-        $data['eventdata']['data']['billing_address'] = $billing_address;
-        $tax_discount = $order_details->total_discounts_tax_incl - $order_details->total_discounts;
-        $data['eventdata']['data']['Miscellaneous'] = array(
-            'cart_DISCOUNT' => round($order_details->total_discounts, 2),
-            'cart_DISCOUNT_TAX' => $tax_discount,
-            'customer_USER ' => $order_details->id_customer,
-            'payment_METHOD' => $order_details->payment,
-            'payment_METHOD_TITLE' => $order_details->module,
-            'customer_IP_ADDRESS' => '',
-            'customer_USER_AGENT' => '',
-            'user_LOGIN' => '',
-            'user_PASSWORD' => '',
-            'refunded_AMOUNT' => 0
-        );
-        $this->curlpost($data, 'trackEvent');
-    }
-
     public function countyCode($code)
     {
         return Db::getInstance()->getRow('SELECT `call_prefix` FROM '._DB_PREFIX_.'country
@@ -5009,13 +4686,45 @@ EOT;
             Configuration::updateValue('Sendin_Attribute_Status', 1, '', $this->id_shop_group, $this->id_shop);
         }
     }
+    /**
+    * Create new Attributes 'COMPANY' and 'POSTCODE' as per the client requirements.
+    */
+    public function createCompanyAndPostcodeAttr()
+    {
+        $api_key = Configuration::get('Sendin_Api_Key', '', $this->id_shop_group, $this->id_shop);
+        if (!empty($api_key)) {
+            $data_attr = array();
+            $data_attr = array( 'COMPANY' => 'TEXT','POSTCODE' => 'TEXT');
+
+            $mailin = $this->createObjMailin();
+            $data = array('type' => 'normal',
+            'data' => $data_attr,
+            );
+            $mailin->createAttribute($data);
+            Configuration::updateValue('Sendin_New_Attribute_Status', 1, '', $this->id_shop_group, $this->id_shop);
+        }
+    }
+    
+     /**
+     * For the Default PS Newsletter i.e. ps_emailsubscription version 2.6.0
+     */
+    public function sendinDefaultNewsletter($email)
+    {
+        $lang_id = !empty($this->context->language->id) ? $this->context->language->id : '';
+        $guest_iso = Language::getIsoById((int) $lang_id);
+        
+        $this->newsletterRegistration($guest_iso);
+        $this->email = Tools::safeOutput($email);
+    }
 
     /**
-     * Register hook for  0 price value order confirmation.
+     * For the Default PS Newsletter i.e. ps_emailsubscription version 2.6.0
      */
-    public function registerHookZeroPriceOrd()
+    public function newsletterVersion()
     {
-        $this->registerHook('actionPaymentConfirmation');
-        Configuration::updateValue('Sendin_Ord_Confirmation_Zeroprice_Status', 1, '', $this->id_shop_group, $this->id_shop);
+        $module = Module::getInstanceByName('ps_emailsubscription');
+        return $module->version;
     }
+    
+    //end file
 }

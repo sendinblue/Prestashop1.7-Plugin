@@ -270,7 +270,7 @@ $(document).ready(
                 }
 
                 $(".sms_order_setting_cls").click(function() {
-                    var orderSetting = $('input:radio[name=sms_order_setting]:checked').val();;
+                    var orderSetting = $('input:radio[name=sms_order_setting]:checked').val();
                     var type = 'Order';
                     $.ajax({
                         type: "POST",
@@ -713,7 +713,7 @@ $(document).ready(
         }
         //end sucess msg display fo rajax request
         /*-----end --msg------*/
-            $('.ajax_contacts_href').live('click', function(e) {
+        $(document).on('click', ".ajax_contacts_href", function(e) {
                 /*var sBase = location.href.substr(0, location.href.lastIndexOf("/") + 1);
                  var sp = sBase.split('/');
                  var lastFolder = sp[ sp.length - 2 ];
@@ -742,7 +742,7 @@ $(document).ready(
             
             //sms subscribe and unsubscribe
             
-             $('.ajax_sms_href').live('click', function(e) {
+            $(document).on('click', '.ajax_sms_href', function(e) {
                 /*var sBase = location.href.substr(0, location.href.lastIndexOf("/") + 1);
                  var sp = sBase.split('/');
                  var lastFolder = sp[ sp.length - 2 ];
@@ -851,7 +851,7 @@ $(document).ready(
                 loadData(page, token);
             });
 
-            $('.toolTip').live('mouseover mouseout', function(e) {
+            $(document).on('mouseover mouseout', '.toolTip',function(e) {
                 var title = $(this).attr('title');
                 var offset = $(this).offset();
 
@@ -914,7 +914,7 @@ $(document).ready(
             });
 
         });
- $('.testOrdersmssend').live('click', function(){
+$(document).on('click', '.testOrdersmssend', function(){
     var successmsg = $(this).attr('successmsg');
     var failmsg = $(this).attr('failmsg');
 
@@ -952,7 +952,7 @@ $(document).ready(
     });
     return false;
 });
-$('.testSmsShipped').live('click', function(){
+$(document).on('click', '.testSmsShipped', function(){
     var successmsg = $(this).attr('successmsg');
     var failmsg = $(this).attr('failmsg');
 
@@ -991,7 +991,7 @@ $('.testSmsShipped').live('click', function(){
     return false;
 });
 
-$('.testSmsCampaignsend').live('click', function(){
+$(document).on('click', '.testSmsCampaignsend', function(){
     var successmsg = $(this).attr('successmsg');
     var failmsg = $(this).attr('failmsg');
     var sendererr = $(this).attr('sendererr');
@@ -1044,7 +1044,7 @@ $('.testSmsCampaignsend').live('click', function(){
     }
     return false;
 });
-$('.sender_order_save').live('click', function(){
+$(document).on('click', '.sender_order_save', function(){
     var senderfield = $(this).attr('senderfield');
     var messagefield = $(this).attr('messagefield');
     var sender = $('#sender_order').val();
@@ -1062,7 +1062,7 @@ $('.sender_order_save').live('click', function(){
         return false;
     }       
 });
-$('.sender_shipment_save').live('click', function(){
+$(document).on('click', '.sender_shipment_save', function(){
     var senderfield = $(this).attr('senderfield');
     var messagefield = $(this).attr('messagefield');
     var sender = $('#sender_shipment').val();
@@ -1080,7 +1080,7 @@ $('.sender_shipment_save').live('click', function(){
         return false;
     }       
 });
-$('.sender_campaign_save').live('click', function(){
+$(document).on('click', '.sender_campaign_save', function(){
     var senderfield = $(this).attr('senderfield');
     var messagefield = $(this).attr('messagefield');
     var sender = $('#sender_campaign').val();

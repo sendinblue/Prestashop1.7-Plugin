@@ -103,11 +103,11 @@ class Psmailin
         @options data {String} company_org: Name of Reseller child’s company [Mandatory]
         @options data {String} first_name: First name of Reseller child [Mandatory]
         @options data {String} last_name: Last name of Reseller child [Mandatory]
-        @options data {Array} credits: Number of email & sms credits respectively, which will be 
+        @options data {Array} credits: Number of email & sms credits respectively, which will be
         assigned to the Reseller child’s account [Optional]
             - email_credit {Integer} number of email credits
             - sms_credit {Integer} Number of sms credts
-        @options data {Array} associate_ip: Associate dedicated IPs to reseller child. 
+        @options data {Array} associate_ip: Associate dedicated IPs to reseller child.
         You can use commas to separate multiple IPs [Optional]
     */
     public function createChildAccount($data)
@@ -118,15 +118,15 @@ class Psmailin
     /*
         Update Child Account.
         @param {Array} data contains php array with key value pair.
-        @options data {String} auth_key: 16 character authorization key of Reseller child to 
+        @options data {String} auth_key: 16 character authorization key of Reseller child to
         be modified [Mandatory]
         @options data {String} company_org: Name of Reseller child’s company [Optional]
         @options data {String} first_name: First name of Reseller child [Optional]
         @options data {String} last_name: Last name of Reseller child [Optional]
         @options data {String} password: Password of Reseller child to login [Optional]
-        @options data {Array} associate_ip: Associate dedicated IPs to reseller child. You can use 
+        @options data {Array} associate_ip: Associate dedicated IPs to reseller child. You can use
         commas to separate multiple IPs [Optional]
-        @options data {Array} disassociate_ip: Disassociate dedicated IPs from reseller child. You can 
+        @options data {Array} disassociate_ip: Disassociate dedicated IPs from reseller child. You can
         use commas to separate multiple IPs [Optional]
     */
     public function updateChildAccount($data)
@@ -148,7 +148,7 @@ class Psmailin
     /*
         Get Reseller child Account.
         @param {Array} data contains php array with key value pair.
-        @options data {String} auth_key: 16 character authorization key of Reseller child. 
+        @options data {String} auth_key: 16 character authorization key of Reseller child.
         Example : To get the details of more than one child account, use, {"key1":"abC01De2fGHI3jkL",
         "key2":"mnO45Pq6rSTU7vWX"} [Mandatory]
     */
@@ -160,13 +160,13 @@ class Psmailin
     /*
         Add/Remove Reseller child's Email/Sms credits.
         @param {Array} data contains php array with key value pair.
-        @options data {String} auth_key: 16 character authorization key of Reseller child to modify 
+        @options data {String} auth_key: 16 character authorization key of Reseller child to modify
         credits [Mandatory]
-        @options data {Array} add_credit: Number of email & sms credits to be added. You can assign 
+        @options data {Array} add_credit: Number of email & sms credits to be added. You can assign
         either email or sms credits, one at a time other will remain 0. [Mandatory: if rmv_credit is empty]
             - email_credit {Integer} number of email credits
             - sms_credit {Integer} Number of sms credts
-        @options data {Array} rmv_credit: Number of email & sms credits to be removed. You can assign 
+        @options data {Array} rmv_credit: Number of email & sms credits to be removed. You can assign
         either email or sms credits, one at a time other will remain 0. [Mandatory: if add_credits is empty]
             - email_credit {Integer} number of email credits
             - sms_credit {Integer} Number of sms credts
@@ -189,11 +189,11 @@ class Psmailin
     /*
         Get all campaigns detail.
         @param {Array} data contains php array with key value pair.
-        @options data {String} type: Type of campaign. Possible values – classic, trigger, 
+        @options data {String} type: Type of campaign. Possible values – classic, trigger,
         sms, template ( case sensitive ) [Optional]
         @options data {String} status: Status of campaign. Possible values – draft, sent, archive
         , queued, suspended, in_process, temp_active, temp_inactive ( case sensitive ) [Optional]
-        @options data {Integer} page: Maximum number of records per request is 500, if there are 
+        @options data {Integer} page: Maximum number of records per request is 500, if there are
         more than 500 campaigns then you can use this parameter to get next 500 results [Optional]
         @options data {Integer} page_limit: This should be a valid number between 1-500 [Optional]
     */
@@ -206,38 +206,38 @@ class Psmailin
         Create and Schedule your campaigns. It returns the ID of the created campaign.
         @param {Array} data contains php array with key value pair.
         @options data {String} category: Tag name of the campaign [Optional]
-        @options data {String} from_name: Sender name from which the campaign emails are sent 
-        [Mandatory: for Dedicated IP clients, please make sure that the sender details are defined 
-        here, and in case of no sender, you can add them also via API & for Shared IP clients, if 
+        @options data {String} from_name: Sender name from which the campaign emails are sent
+        [Mandatory: for Dedicated IP clients, please make sure that the sender details are defined
+        here, and in case of no sender, you can add them also via API & for Shared IP clients, if
         sender exists]
         @options data {String} name: Name of the campaign [Mandatory]
         @options data {String} bat: Email address for test mail [Optional]
-        @options data {String} html_content: Body of the content. The HTML content field must have 
+        @options data {String} html_content: Body of the content. The HTML content field must have
         more than 10 characters [Mandatory: if html_url is empty]
-        @options data {String} html_url: Url which content is the body of content [Mandatory: if 
+        @options data {String} html_url: Url which content is the body of content [Mandatory: if
         html_content is empty]
-        @options data {Array} listid: These are the lists to which the campaign has been sent 
+        @options data {Array} listid: These are the lists to which the campaign has been sent
         [Mandatory: if scheduled_date is not empty]
         @options data {String} scheduled_date: The day on which the campaign is supposed to run[Optional]
         @options data {String} subject: Subject of the campaign [Mandatory]
-        @options data {String} from_email: Sender email from which the campaign emails are sent 
-        [Mandatory: for Dedicated IP clients, please make sure that the sender details are defined 
-        here, and in case of no sender, you can add them also via API & for Shared IP clients, if 
+        @options data {String} from_email: Sender email from which the campaign emails are sent
+        [Mandatory: for Dedicated IP clients, please make sure that the sender details are defined
+        here, and in case of no sender, you can add them also via API & for Shared IP clients, if
         sender exists]
         @options data {String} reply_to: The reply to email in the campaign emails [Optional]
-        @options data {String} to_field: This is to personalize the «To» Field. If you want to 
-        include the first name and last name of your recipient, add [PRENOM] [NOM] To use the contact 
+        @options data {String} to_field: This is to personalize the «To» Field. If you want to
+        include the first name and last name of your recipient, add [PRENOM] [NOM] To use the contact
         attributes here, these should already exist in SendinBlue account [Optional]
         @options data {Array} exclude_list: These are the lists which must be excluded from the campaign [Optional]
         @options data {String} attachment_url: Provide the absolute url of the attachment [Optional]
-        @options data {Integer} inline_image: Status of inline image. Possible values = 0 (default) 
-        & 1. inline_image = 0 means image can’t be embedded, & inline_image = 1 means image can be 
+        @options data {Integer} inline_image: Status of inline image. Possible values = 0 (default)
+        & 1. inline_image = 0 means image can’t be embedded, & inline_image = 1 means image can be
         embedded, in the email [Optional]
-        @options data {Integer} mirror_active: Status of mirror links in campaign. Possible values = 0 
-        & 1 (default). mirror_active = 0 means mirror links are deactivated, & mirror_active = 1 
+        @options data {Integer} mirror_active: Status of mirror links in campaign. Possible values = 0
+        & 1 (default). mirror_active = 0 means mirror links are deactivated, & mirror_active = 1
         means mirror links are activated, in the campaign [Optional]
-        @options data {Integer} send_now: Flag to send campaign now. Possible values = 0 (default) 
-        & 1. send_now = 0 means campaign can’t be send now, & send_now = 1 means campaign ready to 
+        @options data {Integer} send_now: Flag to send campaign now. Possible values = 0 (default)
+        & 1. send_now = 0 means campaign can’t be send now, & send_now = 1 means campaign ready to
         send now [Optional]
 
     */
@@ -251,39 +251,39 @@ class Psmailin
         @param {Array} data contains php array with key value pair.
         @options data {Integer} id: Id of campaign to be modified [Mandatory]
         @options data {String} category: Tag name of the campaign [Optional]
-        @options data {String} from_name: Sender name from which the campaign emails are sent 
-        [Mandatory: for Dedicated IP clients, please make sure that the sender details are defined 
-        here, and in case of no sender, you can add them also via API & for Shared IP clients, if 
+        @options data {String} from_name: Sender name from which the campaign emails are sent
+        [Mandatory: for Dedicated IP clients, please make sure that the sender details are defined
+        here, and in case of no sender, you can add them also via API & for Shared IP clients, if
         sender exists]
         @options data {String} name: Name of the campaign [Optional]
         @options data {String} bat: Email address for test mail [Optional]
-        @options data {String} html_content: Body of the content. The HTML content field must have 
+        @options data {String} html_content: Body of the content. The HTML content field must have
         more than 10 characters [Optional]
         @options data {String} html_url: Url which content is the body of content [Optional]
-        @options data {Array} listid These are the lists to which the campaign has been sent 
+        @options data {Array} listid These are the lists to which the campaign has been sent
         [Mandatory: if scheduled_date is not empty]
-        @options data {String} scheduled_date: The day on which the campaign is supposed to 
+        @options data {String} scheduled_date: The day on which the campaign is supposed to
         run[Optional]
         @options data {String} subject: Subject of the campaign.
-        @options data {String} from_email: Sender email from which the campaign emails are sent 
-        [Mandatory: for Dedicated IP clients, please make sure that the sender details are defined 
-        here, and in case of no sender, you can add them also via API & for Shared IP clients, 
+        @options data {String} from_email: Sender email from which the campaign emails are sent
+        [Mandatory: for Dedicated IP clients, please make sure that the sender details are defined
+        here, and in case of no sender, you can add them also via API & for Shared IP clients,
         if sender exists]
         @options data {String} reply_to: The reply to email in the campaign emails [Optional]
-        @options data {String} to_field: This is to personalize the «To» Field. If you want to 
-        include the first name and last name of your recipient, add [PRENOM] [NOM]. To use the 
+        @options data {String} to_field: This is to personalize the «To» Field. If you want to
+        include the first name and last name of your recipient, add [PRENOM] [NOM]. To use the
         contact attributes here, these should already exist in SendinBlue account [Optional]
-        @options data {Array} exclude_list: These are the lists which must be excluded from the 
+        @options data {Array} exclude_list: These are the lists which must be excluded from the
         campaign [Optional]
         @options data {String} attachment_url: Provide the absolute url of the attachment [Optional]
-        @options data {Integer} inline_image: Status of inline image. Possible values = 0 
-        (default) & 1. inline_image = 0 means image can’t be embedded, & inline_image = 1 
+        @options data {Integer} inline_image: Status of inline image. Possible values = 0
+        (default) & 1. inline_image = 0 means image can’t be embedded, & inline_image = 1
         means image can be embedded, in the email [Optional]
-        @options data {Integer} mirror_active: Status of mirror links in campaign. Possible 
-        values = 0 & 1 (default). mirror_active = 0 means mirror links are deactivated, & 
+        @options data {Integer} mirror_active: Status of mirror links in campaign. Possible
+        values = 0 & 1 (default). mirror_active = 0 means mirror links are deactivated, &
         mirror_active = 1 means mirror links are activated, in the campaign [Optional]
-        @options data {Integer} send_now: Flag to send campaign now. Possible values = 0 
-        (default) & 1. send_now = 0 means campaign can’t be send now, & send_now = 1 means 
+        @options data {Integer} send_now: Flag to send campaign now. Possible values = 0
+        (default) & 1. send_now = 0 means campaign can’t be send now, & send_now = 1 means
         campaign ready to send now [Optional]
     */
     public function updateCampaign($data)
@@ -307,12 +307,12 @@ class Psmailin
         Send report of Sent and Archived campaign.
         @param {Array} data contains php array with key value pair.
         @options data {Integer} id: Id of campaign to send its report [Mandatory]
-        @options data {String} lang: Language of email content. Possible values – fr 
+        @options data {String} lang: Language of email content. Possible values – fr
         (default), en, es, it & pt [Optional]
         @options data {String} email_subject: Message subject [Mandatory]
-        @options data {Array} email_to: Email address of the recipient(s). Example: 
+        @options data {Array} email_to: Email address of the recipient(s). Example:
         "test@example.net". You can use commas to separate multiple recipients [Mandatory]
-        @options data {String} email_content_type: Body of the message in text/HTML version. 
+        @options data {String} email_content_type: Body of the message in text/HTML version.
         Possible values – text & html [Mandatory]
         @options data {Array} email_bcc: Same as email_to but for Bcc [Optional]
         @options data {Array} email_cc: Same as email_to but for Cc [Optional]
@@ -329,7 +329,7 @@ class Psmailin
         Export the recipients of a specified campaign.
         @param {Array} data contains php array with key value pair.
         @options data {Integer} id: Id of campaign to export its recipients [Mandatory]
-        @options data {String} notify_url: URL that will be called once the export process 
+        @options data {String} notify_url: URL that will be called once the export process
         is finished [Mandatory]
         @options data {String} type: Type of recipients. Possible values – all, non_clicker,
         non_opener, clicker, opener, soft_bounces, hard_bounces & unsubscribes [Mandatory]
@@ -927,7 +927,7 @@ class Psmailin
         ("from@email.com","from email") [Mandatory]
         @options data {String} html: Body of the message. (HTML version) [Mandatory]. To send inline images,
         use <img src="{YourFileName.Extension}" alt="image" border="0" >, the 'src' attribute value inside {}
-        (curly braces) should be same as the filename used in 'inline_image' parameter 
+        (curly braces) should be same as the filename used in 'inline_image' parameter
         @options data {String} text: Body of the message. (text version) [Optional]
         @options data {Array} cc: Same as to but for Cc. Example: array("cc@example.net","cc whom") [Optional]
         @options data {Array} bcc: Same as to but for Bcc. Example: array("bcc@example.net","bcc whom")
@@ -1183,7 +1183,7 @@ class Psmailin
     /*
         Update Sendinblue Partner.
         @param {Array} data contains php array with key value pair.
-        @options data {Integer} id: 
+        @options data {Integer} id:
         @options data {String} to: partner name
     */
     public function updateMailinPartner($data)
